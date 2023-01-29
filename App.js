@@ -1,43 +1,58 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState} from 'react';
+import React, {useState, useRef } from 'react';
 import { Button, StyleSheet, Text, View, TextInput, FlatList } from 'react-native';
 
 export default function App() {
-  const [result, setResult] = useState(0);
-  const [number1, setNumber1] = useState(0);
-  const [number2, setNumber2] = useState(0);
+  const [result, setResult] = useState('');
+  const [number1, setNumber1] = useState('');
+  const [number2, setNumber2] = useState('');
   const [text, setText] = useState('');
   const [data, setData] = useState([]);
 
-  const sumNumbers = () => {  
-    setResult(number1 + number2);
-    setText(number1 + ' + ' + number2 + ' = ' + (number1 - number2));
-    setData([...data, {key: text}]);
-    setNumber1('');
-    setNumber2('');
-  }
+  const initialFocus = useRef(null);
 
-  const substract = () => {  
-    setResult(number1 - number2);
-    setText(number1 + ' - ' + number2 + ' = ' + (number1 - number2));
-    setData([...data, {key: text}]);
+  const calculate = operator => {
+    const [num1, num2] = [Number(number1), Number(number2)];
+
+    switch (operator) {
+      case '+':
+        setResult(num1 + num2);
+        setText(num1 + ' + ' + num2 + ' = ' + (num1 + num2));
+        setData([...data, {key: text}]);
+        break;
+      case '-': 
+        setResult(num1-num2);
+        setText(number1 + ' - ' + number2 + ' = ' + (number1 - number2));
+        setData([...data, {key: text}]);
+        break;
+    }
     setNumber1('');
     setNumber2('');
+    initialFocus.current.focus();
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.inputbox}>
         <Text>Result: {result}</Text>
-        <TextInput style={{width:200, borderColor: 'gray', borderWidth:1}}onChangeText={number1 => setNumber1(Number(number1))}  value={number1} keyboardType={'numeric'}/>
-        <TextInput style={{width:200, borderColor: 'gray', borderWidth:1}}onChangeText={number2 => setNumber2(Number(number2))}  value={number2} keyboardType={'numeric'}/>
+        <TextInput style={{width:200, borderColor: 'gray', borderWidth:1}} 
+          onChangeText={text => setNumber1(text)}  
+          value={number1} 
+          keyboardType={'numeric'} 
+          ref={initialFocus}
+          />
+        <TextInput style={{width:200, borderColor: 'gray', borderWidth:1}}
+          onChangeText={text => setNumber2(text)} 
+          value={number2} 
+          keyboardType={'numeric'}
+          />
       </View>
       <View style={styles.buttons}> 
         <View style={styles.button}>
-          <Button onPress={sumNumbers}title="+" />
+          <Button onPress={() => calculate('+')} title="+" />
         </View>
         <View style={styles.button}>
-          <Button onPress={() => {setResult(number1 - number2); substract();}}title="-" />
+          <Button onPress={() => calculate('-')} title="-" />
         </View>
       </View>
       <View style={styles.listbox}>
